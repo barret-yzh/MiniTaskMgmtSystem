@@ -1,3 +1,4 @@
+```sql
 -- 创建数据库
 CREATE DATABASE IF NOT EXISTS task_management CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
@@ -46,4 +47,4 @@ INDEX idx_status (status),
 INDEX idx_priority (priority),
 INDEX idx_deleted (deleted)
 ); 
-![截屏2025-06-22 12.08.28.png](../../../Desktop/%E6%88%AA%E5%B1%8F2025-06-22%2012.08.28.png)
+```
