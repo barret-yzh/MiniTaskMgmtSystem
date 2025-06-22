@@ -46,25 +46,29 @@ public class TaskController {
                                                           @RequestParam Long userId) {
         try {
             User user = userService.findById(userId);
-            List<Task> tasks;
             
-            if (status != null && priority != null) {
-                tasks = taskService.getTasksByProject(projectId, user);
-                tasks = tasks.stream()
-                        .filter(task -> task.getStatus() == status && task.getPriority() == priority)
-                        .toList();
-            } else if (status != null) {
-                tasks = taskService.getTasksByProjectAndStatus(projectId, status, user);
-            } else if (priority != null) {
-                tasks = taskService.getTasksByProjectAndPriority(projectId, priority, user);
-            } else {
-                tasks = taskService.getTasksByProjectSorted(projectId, sortBy, sortDir, user);
+            if (!isValidSortField(sortBy)) {
+                return ResponseEntity.badRequest().body(ApiResponse.error("无效的排序字段: " + sortBy + "，只支持 priority 或 created_at"));
             }
+            
+            if (!isValidSortDirection(sortDir)) {
+                return ResponseEntity.badRequest().body(ApiResponse.error("无效的排序方向: " + sortDir + "，只支持 asc 或 desc"));
+            }
+            
+            List<Task> tasks = taskService.getTasksWithFiltersAndSort(projectId, status, priority, sortBy, sortDir, user);
             
             return ResponseEntity.ok(ApiResponse.success("获取任务列表成功", tasks));
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(ApiResponse.error(e.getMessage()));
         }
+    }
+    
+    private boolean isValidSortField(String sortBy) {
+        return "created_at".equals(sortBy) || "priority".equals(sortBy);
+    }
+    
+    private boolean isValidSortDirection(String sortDir) {
+        return "asc".equalsIgnoreCase(sortDir) || "desc".equalsIgnoreCase(sortDir);
     }
     
     @GetMapping("/{id}")

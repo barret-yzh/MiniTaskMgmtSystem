@@ -5,6 +5,7 @@ import com.mgmtsystem.entity.Task;
 import com.mgmtsystem.enums.TaskPriority;
 import com.mgmtsystem.enums.TaskStatus;
 import org.apache.ibatis.annotations.Mapper;
+import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.annotations.Select;
 
 import java.util.List;
@@ -45,4 +46,37 @@ public interface TaskMapper extends BaseMapper<Task> {
             "WHERE t.project_id = #{projectId} AND p.owner_id = #{ownerId} AND t.deleted = 0 AND p.deleted = 0 " +
             "ORDER BY ${sortBy} ${sortDir}")
     List<Task> findByProjectIdAndOwnerIdSorted(Long projectId, Long ownerId, String sortBy, String sortDir);
+    
+    /**
+     * 任务查询，支持筛选和排序（只支持按优先级或创建时间排序）
+     */
+    @Select("<script>" +
+            "SELECT t.* FROM task t INNER JOIN project p ON t.project_id = p.id " +
+            "WHERE t.project_id = #{projectId} AND p.owner_id = #{ownerId} " +
+            "AND t.deleted = 0 AND p.deleted = 0 " +
+            "<if test='status != null'> AND t.status = #{status} </if>" +
+            "<if test='priority != null'> AND t.priority = #{priority} </if>" +
+            "ORDER BY " +
+            "<choose>" +
+            "<when test='sortBy == \"priority\"'>" +
+            "<choose>" +
+            "<when test='sortDir == \"asc\"'>" +
+            "CASE t.priority WHEN 'LOW' THEN 1 WHEN 'MEDIUM' THEN 2 WHEN 'HIGH' THEN 3 END ASC" +
+            "</when>" +
+            "<otherwise>" +
+            "CASE t.priority WHEN 'HIGH' THEN 1 WHEN 'MEDIUM' THEN 2 WHEN 'LOW' THEN 3 END ASC" +
+            "</otherwise>" +
+            "</choose>" +
+            "</when>" +
+            "<otherwise>" +
+            "t.created_at ${sortDir}" +
+            "</otherwise>" +
+            "</choose>" +
+            "</script>")
+    List<Task> findTasksWithFiltersAndSort(@Param("projectId") Long projectId, 
+                                          @Param("ownerId") Long ownerId,
+                                          @Param("status") TaskStatus status, 
+                                          @Param("priority") TaskPriority priority,
+                                          @Param("sortBy") String sortBy, 
+                                          @Param("sortDir") String sortDir);
 } 

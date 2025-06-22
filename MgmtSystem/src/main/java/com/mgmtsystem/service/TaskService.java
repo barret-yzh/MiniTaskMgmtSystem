@@ -40,6 +40,13 @@ public class TaskService {
         return task;
     }
 
+    public List<Task> getTasksWithFiltersAndSort(Long projectId, TaskStatus status, TaskPriority priority, 
+                                                String sortBy, String sortDir, User owner) {
+        projectService.getProjectById(projectId, owner);
+        
+        return taskMapper.findTasksWithFiltersAndSort(projectId, owner.getId(), status, priority, sortBy, sortDir);
+    }
+
     public List<Task> getTasksByProject(Long projectId, User owner) {
         projectService.getProjectById(projectId, owner);
         return taskMapper.findByProjectIdAndOwnerId(projectId, owner.getId());
