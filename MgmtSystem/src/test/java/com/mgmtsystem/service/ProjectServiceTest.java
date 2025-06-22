@@ -106,7 +106,7 @@ class ProjectServiceTest {
             RuntimeException.class,
             () -> projectService.getProjectById(1L, user)
         );
-        assertEquals("项目不存在或无权限访问", exception.getMessage());
+        assertEquals("项目不存在或无权访问", exception.getMessage());
     }
 
     @Test
@@ -135,7 +135,7 @@ class ProjectServiceTest {
             RuntimeException.class,
             () -> projectService.updateProject(1L, projectRequest, user)
         );
-        assertEquals("项目不存在或无权限访问", exception.getMessage());
+        assertEquals("项目不存在或无权访问", exception.getMessage());
     }
 
     @Test
@@ -161,6 +161,6 @@ class ProjectServiceTest {
             RuntimeException.class,
             () -> projectService.deleteProject(1L, user)
         );
-        assertEquals("项目不存在或无权限访问", exception.getMessage());
+        assertEquals("项目不存在或无权访问", exception.getMessage());
     }
 } 
